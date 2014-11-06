@@ -31,20 +31,12 @@ float origin[] = {0,5,0};
 
 
 
-
 void renderParticle(){
     
     particle * pt = new particle();
     pvector.push_back(pt);
     
   
-    glPointSize(5);
-    glColor3f(1, 0, 0);
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-        glVertex3f(origin[0], origin[1], origin[2]);
-    
-    glEnd();
     
     
     
@@ -52,6 +44,17 @@ void renderParticle(){
 }
 
 
+void drawOrigin(){
+    
+    glPointSize(5);
+    glColor3f(1, 0, 0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+    glVertex3f(origin[0], origin[1], origin[2]);
+    
+    glEnd();
+    
+}
 
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
     glBegin(GL_POLYGON);
@@ -61,27 +64,26 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
         glVertex3fv(v[d]);
     glEnd();
     
-
 }
 
 void cube(float v[8][3])
 {
-    glColor3f(0, 1, 1);
+    glColor3f(-1,1,1);
     drawPolygon(0, 3, 2, 1, v);
     
-    glColor3f(0,0,1);
+    glColor3f(1,1,1);
     drawPolygon(1, 0, 4, 5, v);
     
-    glColor3f(0,0,1);
+    glColor3f(1,-1,1); // top face
     drawPolygon(5, 1, 2, 6, v);
     
-    glColor3f(0,0,1);
+    glColor3f(-1,-1,-1);
     drawPolygon(2, 3, 7, 6, v);
     
-    glColor3f(0,1,1);
+    glColor3f(-1,1,-1);
     drawPolygon(6, 5, 4, 7, v);
     
-    glColor3f(0,1,1);
+    glColor3f(-1,-1,1);
     drawPolygon(4, 0, 3, 7, v);
 }
 
@@ -151,9 +153,9 @@ void display(void){
     
     
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-    glColor3f(1,1,1);
+   
     
-    
+    drawOrigin();
     drawBox(origin, 10, 1, 10);
     renderParticle();
     
@@ -161,6 +163,8 @@ void display(void){
     
     
 }
+
+
 
 void init(void)
 {
