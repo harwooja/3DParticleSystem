@@ -37,25 +37,9 @@ float age;
 float r, g, b;
 float size;
 float speed;
+float gravity;
 
 
-void drawPolygon(int a, int b, int c, int d, float v[8][3]){
-    glBegin(GL_POLYGON);
-        glVertex3fv(v[a]);
-        glVertex3fv(v[b]);
-        glVertex3fv(v[c]);
-        glVertex3fv(v[d]);
-    glEnd();
-}
-
-void drawOrigin(){
-    glPointSize(5);
-    glColor3f(1, 0, 0);
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-    glVertex3f(origin[0], origin[1], origin[2]);
-    glEnd();
-}
 
 // Initialization speed for each particle
 void randomSpin(){
@@ -74,31 +58,74 @@ void randomColour(){
     b =  (float)rand()/RAND_MAX;
 }
 
+void randomDirections(){
+    srand(time(NULL));
+   
+    dy =  -1;
+   
+}
+
+// Creates a new particle per display refresh
 void createParticle(){
     randomSpin();
     randomColour();
     age = 0;
-    
+    size = 2;
+    speed = 3;
     
     particle * pt = new particle(origin[0], origin[1], origin[2], rx, ry, rz, r, g, b, dx, dy, dz, age, size, speed);
     pvector.push_back(pt);
-    
+}
 
+void updateParticles(){
     
     
     
     
 }
 
+// Renders each particle that is inside of our vector
 void renderParticle(){
     
-    glBegin(GL_POINT);
+    createParticle();
+
+    
+    glBegin(GL_POINTS);
         for (int x = 0; x < pvector.size(); x++) {
-            glVertex3f(1,1,1);
+            glVertex3f(0,3,0);
         }
     glEnd();
     
 }
+
+
+
+// Draws origin point in window
+void drawOrigin(){
+    glPointSize(5);
+    glColor3f(1, 0, 0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+    glVertex3f(origin[0], origin[1], origin[2]);
+    glEnd();
+}
+
+
+
+
+
+/** ----- START OF CREATING BASE ----- **/
+
+// Draws our base (rectangular prism)
+void drawPolygon(int a, int b, int c, int d, float v[8][3]){
+    glBegin(GL_POLYGON);
+    glVertex3fv(v[a]);
+    glVertex3fv(v[b]);
+    glVertex3fv(v[c]);
+    glVertex3fv(v[d]);
+    glEnd();
+}
+
 
 void cube(float v[8][3])
 {
@@ -138,6 +165,7 @@ void drawBox(float* c, float w, float h, float d)
 }
 
 
+/** ----- END OF CREATING BASE ----- **/
 
 
 
@@ -220,8 +248,7 @@ void display(void){
 
 void init(void)
 {
-    size = 2;
-    speed = 3;
+    gravity = 2;
     glClearColor(0, 0, 0, 0); // red, green, blue, alpha
     glColor3f(1, 1, 1); // red, green, blue.   0 - 1 (floats)
     

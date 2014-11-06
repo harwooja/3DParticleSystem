@@ -50,7 +50,7 @@ public:
 private:
     float px, py, pz; // particle position
     float dx, dy, dz; // movement direction
-    int speed = 1; // movement speed
+    int speed; // movement speed
     float rx, ry, rz; // rotation angles (for x y z)
     float size; // particle size
     float r, g, b; // red green blue
