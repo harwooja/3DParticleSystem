@@ -58,20 +58,22 @@ void randomColour(){
     b =  (float)rand()/RAND_MAX;
 }
 
+// Initilization direction for x, y, z of particle
 void randomDirections(){
     srand(time(NULL));
-   
-    dy =  -1;
-   
+    dx = -0.01;
+    dy =  -0.25;
+    dz = 0.01;
 }
 
 // Creates a new particle per display refresh
 void createParticle(){
     randomSpin();
     randomColour();
+    randomDirections();
     age = 0;
     size = 2;
-    speed = 3;
+    speed = 2;
     
     particle * pt = new particle(origin[0], origin[1], origin[2], rx, ry, rz, r, g, b, dx, dy, dz, age, size, speed);
     pvector.push_back(pt);
@@ -79,25 +81,30 @@ void createParticle(){
 
 void updateParticles(){
     
-    
-    
-    
+    for (int x = 0; x < pvector.size(); x++){
+        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx()); //update px for ALL
+        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy()); //update py for ALL
+        pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()); //update pz for ALL
+    }
 }
 
 // Renders each particle that is inside of our vector
 void renderParticle(){
     
     createParticle();
-
+    updateParticles();
+    
+    
     
     glBegin(GL_POINTS);
+
         for (int x = 0; x < pvector.size(); x++) {
-            glVertex3f(0,3,0);
+            glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
+            glVertex3f(pvector[x]->getpx(),pvector[x]->getpy(),pvector[x]->getpz());
         }
     glEnd();
     
 }
-
 
 
 // Draws origin point in window
@@ -138,13 +145,13 @@ void cube(float v[8][3])
     glColor3f(0,0,1); // top face
     drawPolygon(5, 1, 2, 6, v);
     
-    glColor3f(0,0,1);
+    glColor3f(1,0,0);
     drawPolygon(2, 3, 7, 6, v);
     
     glColor3f(0,0,1);
     drawPolygon(6, 5, 4, 7, v);
     
-    glColor3f(0,1,1);
+    glColor3f(1,1,1);
     drawPolygon(4, 0, 3, 7, v);
 }
 
@@ -218,7 +225,7 @@ void timer(int value)
 {
     ;
     glutPostRedisplay();
-    glutTimerFunc(0.01, timer, 0);
+    glutTimerFunc(10, timer, 0);
     
     
 }
@@ -226,7 +233,6 @@ void timer(int value)
 
 
 void display(void){
-    
     
     float origin[3] = {0,0,0};
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -275,6 +281,7 @@ int main(int argc, char * argv[]) {
     glutSpecialFunc(special);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_SMOOTH);
     glutTimerFunc(0.2, timer, 0);
     
     init();
