@@ -44,6 +44,7 @@ public:
     float getr();
     float getg();
     float getb();
+    float getsize();
 
     
     

@@ -61,9 +61,10 @@ void randomColour(){
 // Initilization direction for x, y, z of particle
 void randomDirections(){
     srand(time(NULL));
-    dx = -0.01;
-    dy =  -0.25;
-    dz = 0.01;
+    dx = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    dy = -0.035;
+    dz = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    
 }
 
 // Creates a new particle per display refresh
@@ -71,9 +72,10 @@ void createParticle(){
     randomSpin();
     randomColour();
     randomDirections();
+    
     age = 0;
     size = 2;
-    speed = 2;
+    speed = 1;
     
     particle * pt = new particle(origin[0], origin[1], origin[2], rx, ry, rz, r, g, b, dx, dy, dz, age, size, speed);
     pvector.push_back(pt);
@@ -82,9 +84,13 @@ void createParticle(){
 void updateParticles(){
     
     for (int x = 0; x < pvector.size(); x++){
-        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx()); //update px for ALL
+        
+       
+        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() * speed); //update px for ALL
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy()); //update py for ALL
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()); //update pz for ALL
+        printf("%f \n", pvector[0]->getpx());
+        
     }
 }
 
@@ -94,11 +100,10 @@ void renderParticle(){
     createParticle();
     updateParticles();
     
-    
-    
     glBegin(GL_POINTS);
 
         for (int x = 0; x < pvector.size(); x++) {
+            glPointSize(pvector[x]->getsize());
             glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
             glVertex3f(pvector[x]->getpx(),pvector[x]->getpy(),pvector[x]->getpz());
         }

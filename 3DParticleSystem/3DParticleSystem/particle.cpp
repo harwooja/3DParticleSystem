@@ -106,3 +106,6 @@ float particle::getg(){
 float particle::getb(){
     return(this->b);
 }
+float particle:: getsize(){
+    return(this->size);
+}
