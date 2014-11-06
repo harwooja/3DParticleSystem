@@ -18,43 +18,26 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
+#include <time.h>
+#include <math.h>
 #include "particle.h"
+
 
 using namespace std;
 
 
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
-float origin[] = {0,5,0};
+float origin[] = {0, 5, 0};
+float rx, ry, rz;
+float dx, dy, dz;
+float age;
+float r, g, b;
+float size;
+float speed;
 
-
-
-
-void renderParticle(){
-    
-    particle * pt = new particle();
-    pvector.push_back(pt);
-    
-  
-    
-    
-    
-    
-}
-
-
-void drawOrigin(){
-    
-    glPointSize(5);
-    glColor3f(1, 0, 0);
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-    glVertex3f(origin[0], origin[1], origin[2]);
-    
-    glEnd();
-    
-}
 
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
     glBegin(GL_POLYGON);
@@ -63,27 +46,78 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
         glVertex3fv(v[c]);
         glVertex3fv(v[d]);
     glEnd();
+}
+
+void drawOrigin(){
+    glPointSize(5);
+    glColor3f(1, 0, 0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+    glVertex3f(origin[0], origin[1], origin[2]);
+    glEnd();
+}
+
+// Initialization speed for each particle
+void randomSpin(){
+    srand(time(NULL));
+    rx =  rand() % 361;
+    ry =  rand() % 361;
+    rz =  rand() % 361;
+    
+}
+
+// Initialization colour for each particle
+void randomColour(){
+    srand(time(NULL));
+    r =  (float)rand()/RAND_MAX;
+    g =  (float)rand()/RAND_MAX;
+    b =  (float)rand()/RAND_MAX;
+}
+
+void createParticle(){
+    randomSpin();
+    randomColour();
+    age = 0;
+    
+    
+    particle * pt = new particle(origin[0], origin[1], origin[2], rx, ry, rz, r, g, b, dx, dy, dz, age, size, speed);
+    pvector.push_back(pt);
+    
+
+    
+    
+    
+    
+}
+
+void renderParticle(){
+    
+    glBegin(GL_POINT);
+        for (int x = 0; x < pvector.size(); x++) {
+            glVertex3f(1,1,1);
+        }
+    glEnd();
     
 }
 
 void cube(float v[8][3])
 {
-    glColor3f(-1,1,1);
+    glColor3f(1, 0, 0);
     drawPolygon(0, 3, 2, 1, v);
     
-    glColor3f(1,1,1);
+    glColor3f(0,0,1);
     drawPolygon(1, 0, 4, 5, v);
     
-    glColor3f(1,-1,1); // top face
+    glColor3f(0,0,1); // top face
     drawPolygon(5, 1, 2, 6, v);
     
-    glColor3f(-1,-1,-1);
+    glColor3f(0,0,1);
     drawPolygon(2, 3, 7, 6, v);
     
-    glColor3f(-1,1,-1);
+    glColor3f(0,0,1);
     drawPolygon(6, 5, 4, 7, v);
     
-    glColor3f(-1,-1,1);
+    glColor3f(0,1,1);
     drawPolygon(4, 0, 3, 7, v);
 }
 
@@ -107,6 +141,8 @@ void drawBox(float* c, float w, float h, float d)
 
 
 
+
+
 void keyboard(unsigned char key, int x, int y){
     
     switch(key){
@@ -114,7 +150,12 @@ void keyboard(unsigned char key, int x, int y){
         case 'q':
             exit(0);
             break;
-    
+        
+        case 'r':
+            pvector.clear();
+            break;
+            
+            
             
     }
     
@@ -126,7 +167,20 @@ void special(int key, int x, int y){
     
     switch(key){
             
+        case GLUT_KEY_LEFT:
+            camPos[0]-=0.5;
+          
+              
+                
+                break;
+
             
+        case GLUT_KEY_RIGHT:
+            camPos[0]+=0.5;
+            if (camPos[0] < 0)
+                camPos[0] = 5;
+            
+            break;
     }
     
     
@@ -153,7 +207,7 @@ void display(void){
     
     
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-   
+    glColor3f(1,1,1);
     
     drawOrigin();
     drawBox(origin, 10, 1, 10);
@@ -164,17 +218,17 @@ void display(void){
     
 }
 
-
-
 void init(void)
 {
+    size = 2;
+    speed = 3;
     glClearColor(0, 0, 0, 0); // red, green, blue, alpha
     glColor3f(1, 1, 1); // red, green, blue.   0 - 1 (floats)
     
     glMatrixMode(GL_PROJECTION); // load for camera angle
     glLoadIdentity();
     
-    gluPerspective(80, 1, 5, 40); // field of view
+    gluPerspective(100, 1, 5, 40); // field of view
 }
 
 int main(int argc, char * argv[]) {
@@ -192,7 +246,7 @@ int main(int argc, char * argv[]) {
     glutDisplayFunc(display);	//registers "display" as the display callback function
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(special);
-    
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glutTimerFunc(0.2, timer, 0);
     

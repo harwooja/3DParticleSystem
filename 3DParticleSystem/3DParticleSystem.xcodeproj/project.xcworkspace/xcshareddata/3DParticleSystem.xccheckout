@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>5DB0F92A-4EA7-42EE-BBD1-18ECEB8E380F</string>
+	<key>IDESourceControlProjectName</key>
+	<string>3DParticleSystem</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>7DD3FF0BCCFE2496FE25065A55A442260FF21242</key>
+		<string>https://github.com/harwooja/3DParticleSystem.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>3DParticleSystem/3DParticleSystem.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>7DD3FF0BCCFE2496FE25065A55A442260FF21242</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/harwooja/3DParticleSystem.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>7DD3FF0BCCFE2496FE25065A55A442260FF21242</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>7DD3FF0BCCFE2496FE25065A55A442260FF21242</string>
+			<key>IDESourceControlWCCName</key>
+			<string>3DParticleSystem</string>
+		</dict>
+	</array>
+</dict>
+</plist>

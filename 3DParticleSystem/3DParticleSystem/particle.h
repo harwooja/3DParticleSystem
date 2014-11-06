@@ -15,9 +15,8 @@
 class particle {
     
 public:
-    particle();
+    particle(float px, float py, float pz, float rx, float ry, float rz, float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed);
     
-// -- SETS --
     void setpx(float px);
     void setpy(float py);
     void setpz(float pz);
@@ -32,7 +31,7 @@ public:
     void setb(float b);
     
     
-// -- GETS --
+    
     float getpx();
     float getpy();
     float getpz();

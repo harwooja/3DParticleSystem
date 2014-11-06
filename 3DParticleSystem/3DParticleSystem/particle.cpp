@@ -9,14 +9,25 @@
 #include "particle.h"
 
 
-particle::particle(){
-    px = 1;
-    py = 1;
-    pz = 1;
-    
+particle::particle(float px, float py, float pz, float rx, float ry, float rz, float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed){
+    this->px = px;
+    this->py = py;
+    this->pz = pz;
+    this->rx = rx;
+    this->ry = ry;
+    this->rz = rz;
+    this->r = r;
+    this->g = g;
+    this->b = b;
+    this->dx = dx;
+    this->dy = dy;
+    this->dz = dz;
+    this->age = age;
+    this->size = size;
+    this->speed = speed;
 }
 
-// -- SETS --
+// SETS -- 
 
 void particle::setpx(float px){
     this->px = px;
@@ -54,7 +65,6 @@ void particle::setg(float g){
 void particle::setb(float b){
     this->b = b;
 }
-
 
 
 
