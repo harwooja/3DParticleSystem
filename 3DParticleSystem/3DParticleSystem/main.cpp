@@ -26,6 +26,30 @@ using namespace std;
 
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
+float origin[] = {0,5,0};
+
+
+
+
+
+void renderParticle(){
+    
+    particle * pt = new particle();
+    pvector.push_back(pt);
+    
+  
+    glPointSize(5);
+    glColor3f(1, 0, 0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+        glVertex3f(origin[0], origin[1], origin[2]);
+    
+    glEnd();
+    
+    
+    
+    
+}
 
 
 
@@ -36,27 +60,13 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
         glVertex3fv(v[c]);
         glVertex3fv(v[d]);
     glEnd();
-}
+    
 
-
-void renderParticle(){
-    
-    particle * pt = new particle();
-    pvector.push_back(pt);
-    
-    glBegin(GL_POINT);
-    glVertex3f(1,1,1);
-    
-    glEnd();
-    
-    
-    
-    
 }
 
 void cube(float v[8][3])
 {
-   
+    glColor3f(0, 1, 1);
     drawPolygon(0, 3, 2, 1, v);
     
     glColor3f(0,0,1);
@@ -68,7 +78,7 @@ void cube(float v[8][3])
     glColor3f(0,0,1);
     drawPolygon(2, 3, 7, 6, v);
     
-    glColor3f(0,0,1);
+    glColor3f(0,1,1);
     drawPolygon(6, 5, 4, 7, v);
     
     glColor3f(0,1,1);
@@ -102,9 +112,7 @@ void keyboard(unsigned char key, int x, int y){
         case 'q':
             exit(0);
             break;
-        
-            
-            
+    
             
     }
     
@@ -162,7 +170,7 @@ void init(void)
     glMatrixMode(GL_PROJECTION); // load for camera angle
     glLoadIdentity();
     
-    gluPerspective(100, 1, 5, 40); // field of view
+    gluPerspective(80, 1, 5, 40); // field of view
 }
 
 int main(int argc, char * argv[]) {

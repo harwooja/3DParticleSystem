@@ -17,6 +17,7 @@ class particle {
 public:
     particle();
     
+// -- SETS --
     void setpx(float px);
     void setpy(float py);
     void setpz(float pz);
@@ -31,7 +32,7 @@ public:
     void setb(float b);
     
     
-    
+// -- GETS --
     float getpx();
     float getpy();
     float getpz();
