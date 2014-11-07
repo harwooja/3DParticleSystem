@@ -9,13 +9,11 @@
 #include "particle.h"
 
 
-particle::particle(float px, float py, float pz, float rx, float ry, float rz, float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed){
+particle::particle(float px, float py, float pz, float rot, float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed){
     this->px = px;
     this->py = py;
     this->pz = pz;
-    this->rx = rx;
-    this->ry = ry;
-    this->rz = rz;
+    this->rot = rot;
     this->r = r;
     this->g = g;
     this->b = b;
@@ -47,14 +45,8 @@ void particle::setdy(float dy){
 void particle::setdz(float dz){
     this->dz = dz;
 }
-void particle::setrx(float rx){
-    this->rx = rx;
-}
-void particle::setry(float ry){
-    this->ry = ry;
-}
-void particle::setrz(float rz){
-    this->rz = rz;
+void particle::setrot(float rot){
+    this->rot = rot;
 }
 void particle::setr(float r){
     this->r = r;
@@ -88,15 +80,10 @@ float particle::getdy(){
 float particle::getdz(){
     return(this->dz);
 }
-float particle::getrx(){
-    return(this->rx);
+float particle::getrot(){
+    return(this->rot);
 }
-float particle::getry(){
-    return(this->ry);
-}
-float particle::getrz(){
-    return(this->rz);
-}
+
 float particle::getr(){
     return(this->r);
 }

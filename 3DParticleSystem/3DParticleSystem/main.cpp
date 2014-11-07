@@ -24,106 +24,13 @@
 #include <math.h>
 #include "particle.h"
 
-
 using namespace std;
-
 
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
-float origin[] = {0, 5, 0};
-float rx, ry, rz;
-float dx, dy, dz;
-float age;
-float r, g, b;
-float size;
-float speed;
+float origin[] = {-5, 5, -4};
+float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
 float gravity;
-
-
-
-// Initialization speed for each particle
-void randomSpin(){
-    srand(time(NULL));
-    rx =  rand() % 361;
-    ry =  rand() % 361;
-    rz =  rand() % 361;
-    
-}
-
-// Initialization colour for each particle
-void randomColour(){
-    srand(time(NULL));
-    r =  (float)rand()/RAND_MAX;
-    g =  (float)rand()/RAND_MAX;
-    b =  (float)rand()/RAND_MAX;
-}
-
-// Initilization direction for x, y, z of particle
-void randomDirections(){
-    srand(time(NULL));
-    dx = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    dy = -0.035;
-    dz = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    
-}
-
-// Creates a new particle per display refresh
-void createParticle(){
-    randomSpin();
-    randomColour();
-    randomDirections();
-    
-    age = 0;
-    size = 2;
-    speed = 1;
-    
-    particle * pt = new particle(origin[0], origin[1], origin[2], rx, ry, rz, r, g, b, dx, dy, dz, age, size, speed);
-    pvector.push_back(pt);
-}
-
-void updateParticles(){
-    
-    for (int x = 0; x < pvector.size(); x++){
-        
-       
-        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() * speed); //update px for ALL
-        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy()); //update py for ALL
-        pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()); //update pz for ALL
-        printf("%f \n", pvector[0]->getpx());
-        
-    }
-}
-
-// Renders each particle that is inside of our vector
-void renderParticle(){
-    
-    createParticle();
-    updateParticles();
-    
-    glBegin(GL_POINTS);
-
-        for (int x = 0; x < pvector.size(); x++) {
-            glPointSize(pvector[x]->getsize());
-            glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
-            glVertex3f(pvector[x]->getpx(),pvector[x]->getpy(),pvector[x]->getpz());
-        }
-    glEnd();
-    
-}
-
-
-// Draws origin point in window
-void drawOrigin(){
-    glPointSize(5);
-    glColor3f(1, 0, 0);
-    glEnable(GL_POINT_SMOOTH);
-    glBegin(GL_POINTS);
-    glVertex3f(origin[0], origin[1], origin[2]);
-    glEnd();
-}
-
-
-
 
 
 /** ----- START OF CREATING BASE ----- **/
@@ -131,32 +38,31 @@ void drawOrigin(){
 // Draws our base (rectangular prism)
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
     glBegin(GL_POLYGON);
-    glVertex3fv(v[a]);
-    glVertex3fv(v[b]);
-    glVertex3fv(v[c]);
-    glVertex3fv(v[d]);
+        glVertex3fv(v[a]);
+        glVertex3fv(v[b]);
+        glVertex3fv(v[c]);
+        glVertex3fv(v[d]);
     glEnd();
 }
-
-
 void cube(float v[8][3])
 {
-    glColor3f(1, 0, 0);
+    glColor3fv(cols[1]);
     drawPolygon(0, 3, 2, 1, v);
     
-    glColor3f(0,0,1);
+    glColor3fv(cols[2]);
     drawPolygon(1, 0, 4, 5, v);
     
-    glColor3f(0,0,1); // top face
+   
+    glColor3fv(cols[3]); // top
     drawPolygon(5, 1, 2, 6, v);
     
-    glColor3f(1,0,0);
+    glColor3fv(cols[4]);
     drawPolygon(2, 3, 7, 6, v);
     
-    glColor3f(0,0,1);
+    glColor3fv(cols[5]);
     drawPolygon(6, 5, 4, 7, v);
     
-    glColor3f(1,1,1);
+    glColor3fv(cols[0]);
     drawPolygon(4, 0, 3, 7, v);
 }
 
@@ -176,9 +82,111 @@ void drawBox(float* c, float w, float h, float d)
     cube(vertices);
 }
 
+// Draws origin point in window
+void drawOrigin(){
+    glPointSize(5);
+        glColor3f(1, 0, 0);
+        glEnable(GL_POINT_SMOOTH);
+        glBegin(GL_POINTS);
+        glVertex3f(origin[0], origin[1], origin[2]);
+    glEnd();
+}
 
-/** ----- END OF CREATING BASE ----- **/
+void collision(){
+    
+    for (int x = 0; x < pvector.size(); x++) {
+        if (pvector[x]->getpy() < 0) {
+            pvector[x]->setdy(pvector[x]->getdy() * -1);
+        }
+        
+        if (pvector[x]->getpz() < 0) {
+            
+        }
+        
+    }
+    
+    
+    
+}
 
+
+// Creates a new particle per display refresh
+void createParticle(){
+    float rot =  rand() % 360 + 1;
+    float r =  (float)rand()/RAND_MAX;
+    float g =  (float)rand()/RAND_MAX;
+    float b =  (float)rand()/RAND_MAX;
+    float dx = ((rand() % 20)) * 0.009;
+    float dy = -0.35;
+    float dz = ((rand() % 20)) * 0.008;
+    float age = 0;
+    float size = 2;
+    float speed = 0.02;
+    
+    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed);
+    pvector.push_back(pt);
+    
+}
+
+
+void updateParticle(){
+    
+    for (int x = 0; x < pvector.size(); x++) {
+        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx()  );
+        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy()  );
+        pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
+    }
+    
+}
+
+void renderParticle(){
+    
+    glPushMatrix();
+    glTranslatef(-5, 5, -5); // set up origin
+    
+    for (int x = 0; x < pvector.size(); x++) {
+        
+        glPushMatrix();
+        glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
+        
+        glRotatef(pvector[x]->getrot(), pvector[x]->getpx(), pvector[x]->getpy(), pvector[x]->getpz());
+        
+        glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
+        
+        
+        glutSolidSphere(0.05 , 15, 15);
+        glPopMatrix();
+        glPopMatrix();
+        
+    }
+    
+     updateParticle();
+    
+    
+}
+
+
+
+
+
+void display(void){
+    
+    float origin[3] = {0,0,0};
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
+    glColor3f(1,1,1);
+    
+    drawBox(origin, 10, 1, 10);
+    drawOrigin();
+    renderParticle();
+
+    glutSwapBuffers();
+    
+  
+    
+}
 
 
 
@@ -190,16 +198,11 @@ void keyboard(unsigned char key, int x, int y){
         case 'q':
             exit(0);
             break;
-        
+            
         case 'r':
             pvector.clear();
             break;
-            
-            
-            
     }
-    
-    
     
 }
 
@@ -209,11 +212,7 @@ void special(int key, int x, int y){
             
         case GLUT_KEY_LEFT:
             camPos[0]-=0.5;
-          
-              
-                
-                break;
-
+            break;
             
         case GLUT_KEY_RIGHT:
             camPos[0]+=0.5;
@@ -222,58 +221,46 @@ void special(int key, int x, int y){
             
             break;
     }
-    
-    
-}
-
-void timer(int value)
-{
-    ;
-    glutPostRedisplay();
-    glutTimerFunc(10, timer, 0);
-    
-    
-}
-
-
-
-void display(void){
-    
-    float origin[3] = {0,0,0};
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-    
-    
-    gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-    glColor3f(1,1,1);
-    
-    drawOrigin();
-    drawBox(origin, 10, 1, 10);
-    renderParticle();
-    
-    glutSwapBuffers();
-    
-    
 }
 
 void init(void)
 {
-    gravity = 2;
+    
     glClearColor(0, 0, 0, 0); // red, green, blue, alpha
     glColor3f(1, 1, 1); // red, green, blue.   0 - 1 (floats)
     
     glMatrixMode(GL_PROJECTION); // load for camera angle
     glLoadIdentity();
     
-    gluPerspective(100, 1, 5, 40); // field of view
+    gluPerspective(70, 1, 5, 40); // field of view
 }
 
-int main(int argc, char * argv[]) {
+void idle(void){
+    createParticle();
+    collision();
+ 
+    glutPostRedisplay();
+    
+    
+}
 
+void timer(int value)
+{
+    createParticle();
+    collision();
+    glutPostRedisplay();
+    glutTimerFunc(100, timer, 0);
+    
+    
+}
+
+
+
+int main(int argc, char * argv[]) {
+    
     glutInit(&argc, argv);
     
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     
     
     glutInitWindowSize(800, 800);
@@ -284,10 +271,10 @@ int main(int argc, char * argv[]) {
     glutDisplayFunc(display);	//registers "display" as the display callback function
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(special);
+    glutTimerFunc(0.01, timer, 0);
+
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_SMOOTH);
-    glutTimerFunc(0.2, timer, 0);
     
     init();
     
