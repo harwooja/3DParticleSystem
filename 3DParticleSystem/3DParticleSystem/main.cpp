@@ -28,9 +28,11 @@ using namespace std;
 
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
-float origin[] = {-5, 5, -4};
+float origin[] = {-4, 6, -4};
 float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
 float gravity;
+float speed;
+
 
 
 /** ----- START OF CREATING BASE ----- **/
@@ -47,23 +49,23 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
 void cube(float v[8][3])
 {
     glColor3fv(cols[1]);
-    drawPolygon(0, 3, 2, 1, v);
+        drawPolygon(0, 3, 2, 1, v);
     
     glColor3fv(cols[2]);
-    drawPolygon(1, 0, 4, 5, v);
-    
+        drawPolygon(5, 4, 0, 1, v);
    
     glColor3fv(cols[3]); // top
-    drawPolygon(5, 1, 2, 6, v);
+        drawPolygon(5, 1, 2, 6, v);
     
     glColor3fv(cols[4]);
-    drawPolygon(2, 3, 7, 6, v);
+        drawPolygon(2, 3, 7, 6, v);
+    
     
     glColor3fv(cols[5]);
-    drawPolygon(6, 5, 4, 7, v);
+        drawPolygon(6, 5, 4, 7, v);
     
-    glColor3fv(cols[0]);
-    drawPolygon(4, 0, 3, 7, v);
+    glColor3fv(cols[0]); // bottom
+        drawPolygon(4, 0, 3, 7, v);
 }
 
 /* drawBox - takes centre point, width, height and depth of a box,
@@ -82,6 +84,15 @@ void drawBox(float* c, float w, float h, float d)
     cube(vertices);
 }
 
+/** ---- END OF CREATING BASE ---- **/
+
+
+
+
+
+
+
+
 // Draws origin point in window
 void drawOrigin(){
     glPointSize(5);
@@ -92,22 +103,6 @@ void drawOrigin(){
     glEnd();
 }
 
-void collision(){
-    
-    for (int x = 0; x < pvector.size(); x++) {
-        if (pvector[x]->getpy() < 0) {
-            pvector[x]->setdy(pvector[x]->getdy() * -1);
-        }
-        
-        if (pvector[x]->getpz() < 0) {
-            
-        }
-        
-    }
-    
-    
-    
-}
 
 
 // Creates a new particle per display refresh
@@ -116,28 +111,60 @@ void createParticle(){
     float r =  (float)rand()/RAND_MAX;
     float g =  (float)rand()/RAND_MAX;
     float b =  (float)rand()/RAND_MAX;
-    float dx = ((rand() % 20)) * 0.009;
+    speed = 0.005;
+    gravity = 0;
+    float dx = ((rand() % 20)) * speed;
     float dy = -0.35;
-    float dz = ((rand() % 20)) * 0.008;
+    float dz = ((rand() % 20)) * 0.00;
     float age = 0;
     float size = 2;
-    float speed = 0.02;
-    
-    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed);
-    pvector.push_back(pt);
+
+    // Create a new instance of our particle class and store it's object in our vector
+    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, gravity);
+    pvector.push_back(pt); // Push to vector
     
 }
 
+// Detects any particle collision with our base
+void collision(){
+    
+    for (int x = 0; x < pvector.size(); x++) {
+        if (pvector[x]->getpy() < 0.500) {
+            pvector[x]->setdy(pvector[x]->getdy() * -1);
+        }
+        
+        if (pvector[x]->getdy() > 0) {
+            pvector[x]->setgrav(pvector[x]->getgrav() + 0.5);
+        }
+        
 
+    }
+}
+
+void removeParticle(){
+    for (int x =0; x < pvector.size(); x++) {
+        if (pvector[x]->getage() == 100){
+        //    pvector.erase(x);
+        }
+        
+    }
+}
+
+// Update every particles details
 void updateParticle(){
     
     for (int x = 0; x < pvector.size(); x++) {
-        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx()  );
-        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy()  );
+        pvector[x]->setage(pvector[x]->getage()+1);
+        pvector[x]->setdy(pvector[x]->getdy() - pvector[x]->getgrav());
+        pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() );
+        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
     }
-    
+    removeParticle();
 }
+
+
+// Logic: Push matrix (local coordinate system) on to stack -> Translate the original origin to the spot we want particles to come out of -> Rotate each theoretical particle (from our record) and then translate them the amount calculated in our record. Update the Particles so we continue moving them (the spheres) a certain direction
 
 void renderParticle(){
     
@@ -154,15 +181,12 @@ void renderParticle(){
         glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
         
         
-        glutSolidSphere(0.05 , 15, 15);
+        glutSolidCube(0.3);
         glPopMatrix();
         glPopMatrix();
         
     }
-    
      updateParticle();
-    
-    
 }
 
 
@@ -249,7 +273,7 @@ void timer(int value)
     createParticle();
     collision();
     glutPostRedisplay();
-    glutTimerFunc(100, timer, 0);
+    glutTimerFunc(50, timer, 0);
     
     
 }

@@ -9,7 +9,7 @@
 #include "particle.h"
 
 
-particle::particle(float px, float py, float pz, float rot, float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed){
+particle::particle(float px, float py, float pz, float rot, float r, float g, float b, float dx, float dy, float dz, float age, float size, float gravity){
     this->px = px;
     this->py = py;
     this->pz = pz;
@@ -22,7 +22,7 @@ particle::particle(float px, float py, float pz, float rot, float r, float g, fl
     this->dz = dz;
     this->age = age;
     this->size = size;
-    this->speed = speed;
+    this->gravity = gravity;
 }
 
 // SETS -- 
@@ -56,6 +56,12 @@ void particle::setg(float g){
 }
 void particle::setb(float b){
     this->b = b;
+}
+void particle::setgrav(float grav){
+    this->gravity = grav;
+}
+void particle::setage(float age){
+    this->age = age;
 }
 
 
@@ -93,6 +99,12 @@ float particle::getg(){
 float particle::getb(){
     return(this->b);
 }
-float particle:: getsize(){
+float particle::getsize(){
     return(this->size);
+}
+float particle::getgrav(){
+    return(this->gravity);
+}
+float particle::getage(){
+    return(this->age);
 }
