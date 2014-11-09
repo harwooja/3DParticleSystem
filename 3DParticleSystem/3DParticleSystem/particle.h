@@ -15,7 +15,7 @@
 class particle {
     
 public:
-    particle(float px, float py, float pz, float rot ,float r, float g, float b, float dx, float dy, float dz, float age, float size, float gravity);
+    particle(float px, float py, float pz, float rot ,float r, float g, float b, float dx, float dy, float dz, float age, float size, float speed);
     
     void setpx(float px);
     void setpy(float py);
@@ -24,7 +24,7 @@ public:
     void setdy(float dy);
     void setdz(float dz);
     void setrot(float rx);
-    void setgrav(float gravity);
+    void setspeed(float speed);
     void setage(float set);
 
     void setr(float r);
@@ -40,9 +40,9 @@ public:
     float getdy();
     float getdz();
     float getrot();
-    float getgrav();
-    float getage();
 
+    float getage();
+    float getspeed();
     float getr();
     float getg();
     float getb();
@@ -53,11 +53,11 @@ public:
 private:
     float px, py, pz; // particle position
     float dx, dy, dz; // movement direction
-    int gravity; // movement speed
     float rot;
     float size; // particle size
     float r, g, b; // red green blue
     float age; // life
+    float speed;
 };
 
 

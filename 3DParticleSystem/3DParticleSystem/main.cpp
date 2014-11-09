@@ -29,9 +29,15 @@ using namespace std;
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
 float origin[] = {-4, 6, -4};
-float cols[6][3] = { {1,0,0}, {0,1,1}, {1,1,0}, {0,1,0}, {0,0,1}, {1,0,1} };
+float cols[6][3] = { {1,0,0},
+                     {0,1,1},
+                     {1,1,0},
+                     {0,1,0},
+                     {0,0,1},
+                     {1,0,1} };
 float gravity;
 float speed;
+bool friction;
 
 
 
@@ -111,31 +117,55 @@ void createParticle(){
     float r =  (float)rand()/RAND_MAX;
     float g =  (float)rand()/RAND_MAX;
     float b =  (float)rand()/RAND_MAX;
-    speed = 0.005;
-    gravity = 0;
-    float dx = ((rand() % 20)) * speed;
+    speed = 1.3;
+    float dx = (((rand() % 20)) * 0.008);
     float dy = -0.35;
-    float dz = ((rand() % 20)) * 0.00;
+    float dz = (((rand() % 20)) * 0.01);
+    
     float age = 0;
-    float size = 2;
+    float size = 0.3;
 
     // Create a new instance of our particle class and store it's object in our vector
-    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, gravity);
+    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed);
     pvector.push_back(pt); // Push to vector
     
 }
+
+
+
 
 // Detects any particle collision with our base
 void collision(){
     
     for (int x = 0; x < pvector.size(); x++) {
+        
+        // if y-value intersects with plane then switch direction
         if (pvector[x]->getpy() < 0.500) {
-            pvector[x]->setdy(pvector[x]->getdy() * -1);
+            if (pvector[x]->getpx() < 5 && pvector[x]->getpx() > -5){
+                if (pvector[x]->getpz() < 5 && pvector[x]->getpz() > -5){
+                     pvector[x]->setdy(pvector[x]->getdy() * -1);
+                }
+                           }
+           
+            
+            // if friction is activated, slow down particles on bounce
+            if (friction){
+                pvector[x]->setdx(pvector[x]->getdx()/pvector[x]->getspeed());
+                pvector[x]->setdy(pvector[x]->getdy()/pvector[x]->getspeed());
+                pvector[x]->setdz(pvector[x]->getdz()/pvector[x]->getspeed());
+            }
         }
         
+        // if our particles are travelling upwards, then switch direction again (back downwards) at a certain height.
         if (pvector[x]->getdy() > 0) {
-            pvector[x]->setgrav(pvector[x]->getgrav() + 0.5);
+            if (pvector[x]->getpy() > 4.5){
+                pvector[x]->setdy(pvector[x]->getdy() * -1);
+            }
+            
         }
+        
+        
+
         
 
     }
@@ -143,10 +173,17 @@ void collision(){
 
 void removeParticle(){
     for (int x =0; x < pvector.size(); x++) {
+       
+        // Removes particle if its age is old
         if (pvector[x]->getage() == 100){
-        //    pvector.erase(x);
+            pvector.erase(pvector.begin()+x);
         }
-        
+
+        // Removes particle if it exits the platform
+        if (pvector[x]->getpy() < -1) {
+            pvector.erase(pvector.begin()+x);
+        }
+ 
     }
 }
 
@@ -155,12 +192,15 @@ void updateParticle(){
     
     for (int x = 0; x < pvector.size(); x++) {
         pvector[x]->setage(pvector[x]->getage()+1);
-        pvector[x]->setdy(pvector[x]->getdy() - pvector[x]->getgrav());
+   
         pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() );
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
-    }
+
+        
     removeParticle();
+}
+    
 }
 
 
@@ -169,7 +209,7 @@ void updateParticle(){
 void renderParticle(){
     
     glPushMatrix();
-    glTranslatef(-5, 5, -5); // set up origin
+    glTranslatef(-4, 6, -4); // set up origin
     
     for (int x = 0; x < pvector.size(); x++) {
         
@@ -181,7 +221,7 @@ void renderParticle(){
         glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
         
         
-        glutSolidCube(0.3);
+        glutSolidCube(pvector[x]->getsize());
         glPopMatrix();
         glPopMatrix();
         
@@ -201,7 +241,6 @@ void display(void){
     glLoadIdentity();
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
     glColor3f(1,1,1);
-    
     drawBox(origin, 10, 1, 10);
     drawOrigin();
     renderParticle();
@@ -220,12 +259,25 @@ void keyboard(unsigned char key, int x, int y){
     switch(key){
             
         case 'q':
+        case 'Q':
             exit(0);
             break;
             
         case 'r':
+        case 'R':
             pvector.clear();
             break;
+    
+        case 'f':
+        case 'F':
+            if(friction == true){
+                friction=false;
+            }
+            else{
+                friction=true;
+            }
+            break;
+    
     }
     
 }
@@ -286,19 +338,23 @@ int main(int argc, char * argv[]) {
     
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     
-    
+   
     glutInitWindowSize(800, 800);
     glutInitWindowPosition(100, 100);
     
+    
+    
     glutCreateWindow("3D Particle System");	//creates the window
+    
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
     
     glutDisplayFunc(display);	//registers "display" as the display callback function
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(special);
     glutTimerFunc(0.01, timer, 0);
 
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+
     
     init();
     
