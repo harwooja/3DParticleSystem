@@ -112,13 +112,13 @@ void createParticle(){
     float r =  (float)rand()/RAND_MAX;
     float g =  (float)rand()/RAND_MAX;
     float b =  (float)rand()/RAND_MAX;
-    speed = 1.3;
+    speed = 1.65;
     float dx = (((rand() % 20)) * 0.008);
     float dy = -0.35;
     float dz = (((rand() % 20)) * 0.01);
     float bounceNum = 1;
     float age = 0;
-    float size = 0.3;
+    float size = 0.1;
 
     // Create a new instance of our particle class and store it's object in our vector
     particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed, bounceNum);
@@ -135,7 +135,7 @@ void collision(){
     for (int x = 0; x < pvector.size(); x++) {
         
         // if y-value intersects with plane then switch direction and increase # of bounces
-        if (pvector[x]->getpy() < 0.500) {
+        if (pvector[x]->getpy() < 0.800) {
             if (pvector[x]->getpx() < 5 && pvector[x]->getpx() > -5){
                 if (pvector[x]->getpz() < 5 && pvector[x]->getpz() > -5){
                      pvector[x]->setdy(pvector[x]->getdy() * -1);
@@ -176,7 +176,7 @@ void removeParticle(){
         }
 
         // Removes particle if it exits the platform
-        if (pvector[x]->getpy() < -1) {
+        if (pvector[x]->getpy() < -2) {
             pvector.erase(pvector.begin()+x);
         }
         
@@ -208,7 +208,9 @@ void updateParticle(){
 
 void renderParticle(){
     
+    
     glPushMatrix();
+    glLoadIdentity();
     glTranslatef(-4, 7, -4); // set up origin
     
     for (int x = 0; x < pvector.size(); x++) {
@@ -221,7 +223,7 @@ void renderParticle(){
         glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
         
         
-        glutSolidCube(pvector[x]->getsize());
+        glutSolidSphere(pvector[x]->getsize(), 60, 60);
         glPopMatrix();
         glPopMatrix();
         
@@ -239,11 +241,12 @@ void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-    glColor3f(1,1,1);
+    renderParticle();
     drawBox(origin, 10, 1, 10);
     drawOrigin();
-    renderParticle();
+    
 
     glutSwapBuffers();
     
