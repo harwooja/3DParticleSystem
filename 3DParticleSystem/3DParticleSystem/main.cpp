@@ -38,6 +38,9 @@ float cols[6][3] = { {1,0,0},
 float gravity;
 float speed;
 bool friction;
+bool wind;
+float windspeed = 1.6;
+float direction = 0;
 
 
 
@@ -150,6 +153,7 @@ void collision(){
                 pvector[x]->setdy(pvector[x]->getdy()/pvector[x]->getspeed());
                 pvector[x]->setdz(pvector[x]->getdz()/pvector[x]->getspeed());
             }
+        
         }
         
         // if our particles are travelling upwards, then switch direction again (back downwards) at a certain height.
@@ -196,12 +200,25 @@ void updateParticle(){
         pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() );
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
-
+       
+        if (wind){
+            if (direction == 1){
+            pvector[x]->setdx(pvector[x]->getdx()*windspeed);
+            } else if (direction == 2){
+            pvector[x]->setdx(pvector[x]->getdx()/windspeed);
+            pvector[x]->setdz(pvector[x]->getdz()*windspeed);
+            } else if (direction == 3){
+            pvector[x]->setdz(pvector[x]->getdz()/windspeed);
+                direction = 1;
+            }
+           
+            }
+        }
         
     removeParticle();
 }
-    
-}
+
+
 
 
 // Logic: Push matrix (local coordinate system) on to stack -> Translate the original origin to the spot we want particles to come out of -> Rotate each theoretical particle (from our record) and then translate them the amount calculated in our record. Update the Particles so we continue moving them (the spheres) a certain direction
@@ -280,7 +297,22 @@ void keyboard(unsigned char key, int x, int y){
                 friction=true;
             }
             break;
-    
+        case 'w':
+        case 'W':
+            if(wind == true){
+                wind=false;
+            }
+            else{
+                wind=true;
+            }
+            break;
+            
+        case 'c':
+        case 'C':
+                direction++;
+            break;
+            
+            
     }
     
 }
@@ -295,10 +327,27 @@ void special(int key, int x, int y){
             
         case GLUT_KEY_RIGHT:
             camPos[0]+=0.5;
-            if (camPos[0] < 0)
-                camPos[0] = 5;
-            
+        
             break;
+            
+        case GLUT_KEY_UP:
+                camPos[2] -= 0.5;
+                break;
+                
+            case GLUT_KEY_DOWN:
+                camPos[2] += 0.5;
+                break;
+                
+            case GLUT_KEY_HOME:
+                camPos[1] += 0.1;
+                break;
+                
+            case GLUT_KEY_END:
+                camPos[1] -= 0.1;
+                break;
+                
+        
+            
     }
 }
 
@@ -311,7 +360,7 @@ void init(void)
     glMatrixMode(GL_PROJECTION); // load for camera angle
     glLoadIdentity();
     
-    gluPerspective(70, 1, 5, 40); // field of view
+    gluPerspective(70, 1, 5, 50); // field of view
 }
 
 void idle(void){
