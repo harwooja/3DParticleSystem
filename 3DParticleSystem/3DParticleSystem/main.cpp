@@ -28,7 +28,7 @@ using namespace std;
 
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
-float origin[] = {-4, 6, -4};
+float origin[] = {-4, 7, -4};
 float cols[6][3] = { {1,0,0},
                      {0,1,1},
                      {1,1,0},
@@ -94,11 +94,6 @@ void drawBox(float* c, float w, float h, float d)
 
 
 
-
-
-
-
-
 // Draws origin point in window
 void drawOrigin(){
     glPointSize(5);
@@ -121,12 +116,12 @@ void createParticle(){
     float dx = (((rand() % 20)) * 0.008);
     float dy = -0.35;
     float dz = (((rand() % 20)) * 0.01);
-    
+    float bounceNum = 1;
     float age = 0;
     float size = 0.3;
 
     // Create a new instance of our particle class and store it's object in our vector
-    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed);
+    particle * pt = new particle(origin[0], origin[1], origin[2], rot, r, g, b, dx, dy, dz, age, size, speed, bounceNum);
     pvector.push_back(pt); // Push to vector
     
 }
@@ -139,11 +134,12 @@ void collision(){
     
     for (int x = 0; x < pvector.size(); x++) {
         
-        // if y-value intersects with plane then switch direction
+        // if y-value intersects with plane then switch direction and increase # of bounces
         if (pvector[x]->getpy() < 0.500) {
             if (pvector[x]->getpx() < 5 && pvector[x]->getpx() > -5){
                 if (pvector[x]->getpz() < 5 && pvector[x]->getpz() > -5){
                      pvector[x]->setdy(pvector[x]->getdy() * -1);
+                    pvector[x]->setbounceNum(pvector[x]->getbounceNum()+1);
                 }
                            }
            
@@ -158,7 +154,7 @@ void collision(){
         
         // if our particles are travelling upwards, then switch direction again (back downwards) at a certain height.
         if (pvector[x]->getdy() > 0) {
-            if (pvector[x]->getpy() > 4.5){
+            if (pvector[x]->getpy() > (7/pvector[x]->getbounceNum())){
                 pvector[x]->setdy(pvector[x]->getdy() * -1);
             }
             
@@ -183,6 +179,11 @@ void removeParticle(){
         if (pvector[x]->getpy() < -1) {
             pvector.erase(pvector.begin()+x);
         }
+        
+        if (pvector[x]->getpx() > 5 || pvector[x]->getpx() < -5){
+            pvector.erase(pvector.begin()+x);
+        }
+        
  
     }
 }
@@ -192,7 +193,6 @@ void updateParticle(){
     
     for (int x = 0; x < pvector.size(); x++) {
         pvector[x]->setage(pvector[x]->getage()+1);
-   
         pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() );
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
@@ -209,7 +209,7 @@ void updateParticle(){
 void renderParticle(){
     
     glPushMatrix();
-    glTranslatef(-4, 6, -4); // set up origin
+    glTranslatef(-4, 7, -4); // set up origin
     
     for (int x = 0; x < pvector.size(); x++) {
         
