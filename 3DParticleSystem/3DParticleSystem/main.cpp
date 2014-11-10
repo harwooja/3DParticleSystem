@@ -41,6 +41,7 @@ bool friction;
 bool wind;
 float windspeed = 1.6;
 float direction = 0;
+bool pause;
 
 
 
@@ -58,20 +59,20 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
 void cube(float v[8][3])
 {
     glColor3fv(cols[1]);
-        drawPolygon(0, 3, 2, 1, v);
-    
+    drawPolygon(0, 3, 2, 1, v); // front
+   
     glColor3fv(cols[2]);
-        drawPolygon(5, 4, 0, 1, v);
+        drawPolygon(5, 4, 0, 1, v); // left
    
     glColor3fv(cols[3]); // top
         drawPolygon(5, 1, 2, 6, v);
     
     glColor3fv(cols[4]);
-        drawPolygon(2, 3, 7, 6, v);
+        drawPolygon(2, 3, 7, 6, v); // right
     
     
     glColor3fv(cols[5]);
-        drawPolygon(6, 5, 4, 7, v);
+        drawPolygon(7, 4, 5, 6, v);//
     
     glColor3fv(cols[0]); // bottom
         drawPolygon(4, 0, 3, 7, v);
@@ -115,7 +116,7 @@ void createParticle(){
     float r =  (float)rand()/RAND_MAX;
     float g =  (float)rand()/RAND_MAX;
     float b =  (float)rand()/RAND_MAX;
-    speed = 1.65;
+    speed = 1.35;
     float dx = (((rand() % 20)) * 0.008);
     float dy = -0.35;
     float dz = (((rand() % 20)) * 0.01);
@@ -260,10 +261,10 @@ void display(void){
     glLoadIdentity();
 
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
-    renderParticle();
+   
     drawBox(origin, 10, 1, 10);
     drawOrigin();
-    
+    renderParticle();
 
     glutSwapBuffers();
     
@@ -306,7 +307,14 @@ void keyboard(unsigned char key, int x, int y){
                 wind=true;
             }
             break;
-            
+        case 'p':
+        case 'P':
+            if (pause == true){
+                pause = false;
+            } else {
+                pause = true;
+            }
+            break;
         case 'c':
         case 'C':
                 direction++;
@@ -337,17 +345,8 @@ void special(int key, int x, int y){
             case GLUT_KEY_DOWN:
                 camPos[2] += 0.5;
                 break;
-                
-            case GLUT_KEY_HOME:
-                camPos[1] += 0.1;
-                break;
-                
-            case GLUT_KEY_END:
-                camPos[1] -= 0.1;
-                break;
-                
+
         
-            
     }
 }
 
@@ -374,7 +373,9 @@ void idle(void){
 
 void timer(int value)
 {
+    if (pause == false){
     createParticle();
+    }
     collision();
     glutPostRedisplay();
     glutTimerFunc(50, timer, 0);
