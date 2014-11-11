@@ -535,6 +535,8 @@ int main(int argc, char * argv[]) {
     
     glutCreateWindow("3D Particle System");	//creates the window
     
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
     glEnable(GL_CULL_FACE); // Enables backface culling
     glEnable(GL_DEPTH_TEST); // Enables depth test for 3-D objects
     
