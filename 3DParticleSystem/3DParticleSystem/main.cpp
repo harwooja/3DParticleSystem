@@ -526,6 +526,17 @@ void timer(int value)
 // Main function
 int main(int argc, char * argv[]) {
     
+    
+    cout << "--LEGEND-- \n";
+    cout << "Key 'q': Exits program \n";
+    cout << "Key 'r': Clears vector (and particles from screen) \n";
+    cout << "Key 'f': Enables/Disables friction mode \n";
+    cout << "Key 'w': Enables/Disables wind mode \n";
+    cout << "Key SPACE: Pauses/Unpauses scene \n";
+    cout << "Key 'c': Changes direction of particles if in 'WIND' mode \n";
+    cout << "Key 's': Enables/Disables rain mode \n";
+    
+    
     glutInit(&argc, argv);
     
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
