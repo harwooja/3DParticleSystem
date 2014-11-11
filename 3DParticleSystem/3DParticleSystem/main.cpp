@@ -42,10 +42,11 @@ bool wind;
 float windspeed = 1.6;
 float direction = 0;
 bool pause;
+bool snow = false;
 
 
 
-/** ----- START OF CREATING BASE ----- **/
+        /** ----- START OF CREATING BASE ----- **/
 
 // Draws our base (rectangular prism)
 void drawPolygon(int a, int b, int c, int d, float v[8][3]){
@@ -94,21 +95,113 @@ void drawBox(float* c, float w, float h, float d)
     cube(vertices);
 }
 
-/** ---- END OF CREATING BASE ---- **/
+        /** ---- END OF CREATING BASE ---- **/
 
 
+
+
+
+
+
+        /** --------- START OF RAIN MODE FUNCTIONS---------  **/
+
+// Function used if we do a rain graphic
+void createRainParticle(){
+    float rot = 0;
+    float r = 0;
+    float g = 0;
+    float b = 1;
+    speed = 1.35;
+    float px = 1;
+    float pz = 1;
+    float dx = 0;
+    float dy = -0.35;
+    float dz = 0;
+    float bounceNum = 0;
+    float age = 0;
+    float size = 0.1;
+    
+    // Create a new instance of our particle class and store it's object in our vector
+    particle * pt = new particle(px, origin[1], pz, rot, r, g, b, dx, dy, dz, age, size, speed, bounceNum);
+    pvector.push_back(pt); // Push to vector
+    
+}
+
+// Function (collision on base) if we do our rain graphic
+void rainCollision(){
+    for (int x = 0; x < pvector.size(); x++) {
+       if (pvector[x]->getpy() < 0.5){
+            pvector[x]->setdy(0);
+        }
+    }
+}
+
+
+void removeRainParticle(){
+    for (int x =0; x < pvector.size(); x++) {
+        // Removes particle if its age is old
+        if (pvector[x]->getage() == 100){
+            pvector.erase(pvector.begin()+x);
+        }
+    }
+}
+
+void updateRainParticle(){
+    
+    for (int x =0; x < pvector.size(); x++){
+        pvector[x]->setage(pvector[x]->getage()+1);
+        pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
+    }
+    
+}
+
+void renderRainParticle(){
+    
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(0, 7, 0); // set up origin
+    
+    for (int x = 0; x < pvector.size(); x++) {
+        glPushMatrix();
+        glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
+        
+        glRotatef(pvector[x]->getrot(), pvector[x]->getpx(), pvector[x]->getpy(), pvector[x]->getpz());
+        glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
+        
+        glutSolidSphere(pvector[x]->getsize(), 60, 60);
+        glPopMatrix();
+        glPopMatrix();
+        
+    }
+    updateRainParticle();
+    
+}
+
+
+
+        /** --------- END RAIN MODE FUNCTIONS---------  **/
+
+
+
+
+
+
+
+
+
+
+
+        /** --------- START OF NON RAID MODE FUNCTIONS --------- **/
 
 // Draws origin point in window
 void drawOrigin(){
     glPointSize(5);
-        glColor3f(1, 0, 0);
-        glEnable(GL_POINT_SMOOTH);
-        glBegin(GL_POINTS);
-        glVertex3f(origin[0], origin[1], origin[2]);
+    glColor3f(1, 0, 0);
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_POINTS);
+    glVertex3f(origin[0], origin[1], origin[2]);
     glEnd();
 }
-
-
 
 // Creates a new particle per display refresh
 void createParticle(){
@@ -145,9 +238,8 @@ void collision(){
                      pvector[x]->setdy(pvector[x]->getdy() * -1);
                     pvector[x]->setbounceNum(pvector[x]->getbounceNum()+1);
                 }
-                           }
+            }
            
-            
             // if friction is activated, slow down particles on bounce
             if (friction){
                 pvector[x]->setdx(pvector[x]->getdx()/pvector[x]->getspeed());
@@ -162,19 +254,13 @@ void collision(){
             if (pvector[x]->getpy() > (7/pvector[x]->getbounceNum())){
                 pvector[x]->setdy(pvector[x]->getdy() * -1);
             }
-            
         }
         
-        
-
-        
-
-    }
+  }
 }
 
 void removeParticle(){
     for (int x =0; x < pvector.size(); x++) {
-       
         // Removes particle if its age is old
         if (pvector[x]->getage() == 100){
             pvector.erase(pvector.begin()+x);
@@ -204,12 +290,12 @@ void updateParticle(){
        
         if (wind){
             if (direction == 1){
-            pvector[x]->setdx(pvector[x]->getdx()*windspeed);
+                pvector[x]->setdx(pvector[x]->getdx()*windspeed);
             } else if (direction == 2){
-            pvector[x]->setdx(pvector[x]->getdx()/windspeed);
-            pvector[x]->setdz(pvector[x]->getdz()*windspeed);
+                pvector[x]->setdx(pvector[x]->getdx()/windspeed);
+                pvector[x]->setdz(pvector[x]->getdz()*windspeed);
             } else if (direction == 3){
-            pvector[x]->setdz(pvector[x]->getdz()/windspeed);
+                pvector[x]->setdz(pvector[x]->getdz()/windspeed);
                 direction = 1;
             }
            
@@ -250,7 +336,7 @@ void renderParticle(){
 }
 
 
-
+        /** --------- END OF NON RAID MODE FUNCTIONS --------- **/
 
 
 void display(void){
@@ -264,7 +350,13 @@ void display(void){
    
     drawBox(origin, 10, 1, 10);
     drawOrigin();
-    renderParticle();
+    
+    if (snow == false){
+        renderParticle();
+    } else if (snow == true){
+        renderRainParticle();
+    }
+
 
     glutSwapBuffers();
     
@@ -320,6 +412,16 @@ void keyboard(unsigned char key, int x, int y){
                 direction++;
             break;
             
+        case 's':
+        case 'S':
+            if (snow == true){
+                snow = false;
+                pvector.clear();
+            } else if (snow == false){
+                snow = true;
+            }
+            break;
+            
             
     }
     
@@ -362,27 +464,28 @@ void init(void)
     gluPerspective(70, 1, 5, 50); // field of view
 }
 
-void idle(void){
-    createParticle();
-    collision();
- 
-    glutPostRedisplay();
-    
-    
-}
+
 
 void timer(int value)
 {
-    if (pause == false){
-    createParticle();
+    if (snow == false){
+        if (pause == false){
+            createParticle();
+        }
+        collision();
     }
-    collision();
+    else if (snow == true){
+        if (pause == false){
+            createRainParticle();
+        }
+        rainCollision();
+    }
+    
     glutPostRedisplay();
     glutTimerFunc(50, timer, 0);
     
     
 }
-
 
 
 int main(int argc, char * argv[]) {
@@ -391,11 +494,8 @@ int main(int argc, char * argv[]) {
     
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     
-   
     glutInitWindowSize(800, 800);
     glutInitWindowPosition(100, 100);
-    
-    
     
     glutCreateWindow("3D Particle System");	//creates the window
     
@@ -406,11 +506,8 @@ int main(int argc, char * argv[]) {
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(special);
     glutTimerFunc(0.01, timer, 0);
-
-
     
     init();
-    
     glutMainLoop();
     
     return (0);
