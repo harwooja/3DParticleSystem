@@ -26,6 +26,27 @@
 
 using namespace std;
 
+
+/**
+ 
+ --LEGEND--
+ 
+ Key "q": Exits program
+ Key "r": Clears vector (and particles from screen)
+ Key "f": Enables/Disables friction mode
+ Key "w": Enables/Disables wind mode
+ Key SPACE: Pauses/Unpauses scene
+ Key "c": Changes direction of particles if in "WIND" mode
+ Key "s": Enables/Disables rain mode
+ 
+ 
+ 
+ **/
+
+
+
+
+// Identify all of our variables
 vector <particle *> pvector;
 float camPos[] = {5, 6, 10};
 float origin[] = {-4, 7, -4};
@@ -39,7 +60,7 @@ float gravity;
 float speed;
 bool friction;
 bool wind;
-float windspeed = 1.6;
+float windspeed = 1.7;
 float direction = 0;
 bool pause;
 bool rain = false;
@@ -57,25 +78,27 @@ void drawPolygon(int a, int b, int c, int d, float v[8][3]){
         glVertex3fv(v[d]);
     glEnd();
 }
+
+// Draws the base rectangular prism
 void cube(float v[8][3])
 {
     glColor3fv(cols[1]);
-    drawPolygon(0, 3, 2, 1, v); // front
+    drawPolygon(0, 3, 2, 1, v); // front face
    
     glColor3fv(cols[2]);
-        drawPolygon(5, 4, 0, 1, v); // left
+        drawPolygon(5, 4, 0, 1, v); // left face
    
-    glColor3fv(cols[3]); // top
-        drawPolygon(5, 1, 2, 6, v);
+    glColor3fv(cols[3]);
+        drawPolygon(5, 1, 2, 6, v); // top face
     
     glColor3fv(cols[4]);
-        drawPolygon(2, 3, 7, 6, v); // right
+        drawPolygon(2, 3, 7, 6, v); // right face
     
     
     glColor3fv(cols[5]);
-        drawPolygon(7, 4, 5, 6, v);//
+        drawPolygon(7, 4, 5, 6, v);//back face
     
-    glColor3fv(cols[0]); // bottom
+    glColor3fv(cols[0]); // bottom face
         drawPolygon(4, 0, 3, 7, v);
 }
 
@@ -105,7 +128,7 @@ void drawBox(float* c, float w, float h, float d)
 
         /** --------- START OF RAIN MODE FUNCTIONS---------  **/
 
-// Function used if we do a rain graphic
+// Creates a rain particle by pushing our data to a class
 void createRainParticle(){
     float rot = 0;
     float r = 0;
@@ -127,16 +150,16 @@ void createRainParticle(){
     
 }
 
-// Function (collision on base) if we do our rain graphic
+// Method (collision on base) if we do our rain graphic
 void rainCollision(){
     for (int x = 0; x < pvector.size(); x++) {
-       if (pvector[x]->getpy() < 1.1){
+       if (pvector[x]->getpy() < 1.1){  // If particle collides with base, then stop moving
             pvector[x]->setdy(0);
         }
     }
 }
 
-
+// Method (remove particle from vector)
 void removeRainParticle(){
     for (int x =0; x < pvector.size(); x++) {
         // Removes particle if its age is old
@@ -146,19 +169,22 @@ void removeRainParticle(){
     }
 }
 
+// Method (update particle information)
 void updateRainParticle(){
     
+    // Updates age componenet and the y-value of every particle
     for (int x =0; x < pvector.size(); x++){
         pvector[x]->setage(pvector[x]->getage()+1);
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
     }
-    
      removeRainParticle();
-    
 }
 
+// Method (renders our rain particle on screen)
 void renderRainParticle(){
     
+    
+    // Matrix hiearchy. Push matrix, translate to our origin (spot we want to spit out particles). Then, for every particle, get the colour and location then put it into our scene.
     glPushMatrix();
     glLoadIdentity();
     glTranslatef(0, 7, 0); // set up origin
@@ -167,10 +193,10 @@ void renderRainParticle(){
         glPushMatrix();
         glColor3f(pvector[x]->getr(), pvector[x]->getg(), pvector[x]->getb());
         
-        glRotatef(pvector[x]->getrot(), pvector[x]->getpx(), pvector[x]->getpy(), pvector[x]->getpz());
-        glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz());
+        glRotatef(pvector[x]->getrot(), pvector[x]->getpx(), pvector[x]->getpy(), pvector[x]->getpz()); // Rotate particle
+        glTranslatef(pvector[x]->getpx() + pvector[x]->getdx(), pvector[x]->getpy() + pvector[x]->getdy(), pvector[x]->getpz() + pvector[x]->getdz()); // Get location values
         
-        glutSolidSphere(pvector[x]->getsize(), 60, 60);
+        glutSolidSphere(pvector[x]->getsize(), 60, 60); // Create actual particle
         glPopMatrix();
         glPopMatrix();
         
@@ -261,6 +287,7 @@ void collision(){
   }
 }
 
+// Method to remove particles from our vector
 void removeParticle(){
     for (int x =0; x < pvector.size(); x++) {
         // Removes particle if its age is old
@@ -284,12 +311,15 @@ void removeParticle(){
 // Update every particles details
 void updateParticle(){
     
+    // For every particle in the vector, update the age and location values (x, y, z)
     for (int x = 0; x < pvector.size(); x++) {
         pvector[x]->setage(pvector[x]->getage()+1);
         pvector[x]->setpx(pvector[x]->getpx() + pvector[x]->getdx() );
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
         pvector[x]->setpz(pvector[x]->getpz() + pvector[x]->getdz()  );
        
+        
+    // If wind is true, then manipulate the direction information depending on the value of "direction"
         if (wind){
             if (direction == 1){
                 pvector[x]->setdx(pvector[x]->getdx()*windspeed);
@@ -341,6 +371,7 @@ void renderParticle(){
         /** --------- END OF NON RAID MODE FUNCTIONS --------- **/
 
 
+// Display function
 void display(void){
     
     float origin[3] = {0,0,0};
@@ -348,10 +379,11 @@ void display(void){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
+    gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0); // Sets up what camera is looking at in our scene
    
-    drawBox(origin, 10, 1, 10);
+    drawBox(origin, 10, 1, 10); // Draws our rectangular base
     
+    // If rain mode is false, then run th default mode. If rain mode is true, run rain mode.
     if (rain == false){
         drawOrigin();
         renderParticle();
@@ -359,16 +391,13 @@ void display(void){
         renderRainParticle();
     }
 
-
-    glutSwapBuffers();
-    
-  
+    glutSwapBuffers(); // Swap buffers -- Double buffering.
     
 }
 
 
 
-
+// Keyboard method
 void keyboard(unsigned char key, int x, int y){
     
     switch(key){
@@ -434,24 +463,25 @@ void keyboard(unsigned char key, int x, int y){
 void special(int key, int x, int y){
     
     switch(key){
-        case GLUT_KEY_LEFT:
+        case GLUT_KEY_LEFT: // Camera position change on left arrow
             camPos[0]-=0.5;
             break;
             
-        case GLUT_KEY_RIGHT:
+        case GLUT_KEY_RIGHT: // Camera position change on right arrow
             camPos[0]+=0.5;
             break;
             
-        case GLUT_KEY_UP:
+        case GLUT_KEY_UP: // Camera position change on up arrow
             camPos[2] -= 0.5;
             break;
                 
-        case GLUT_KEY_DOWN:
+        case GLUT_KEY_DOWN: // Camera position change on down arrow
             camPos[2] += 0.5;
             break;
     }
 }
 
+// Initialization method (sets up things on first run time)
 void init(void)
 {
     
@@ -466,14 +496,19 @@ void init(void)
 
 
 
+// Timer Method. Refreshes display periodically and runs certain functions depending on what mode we are in!
 void timer(int value)
 {
+    
+    // If rain mode is false, run characteristics for normal mode
     if (rain == false){
         if (pause == false){
             createParticle();
         }
         collision();
     }
+    
+    // If rain mode is true, run characteristics for rain mode
     else if (rain == true){
         if (pause == false){
             createRainParticle();
@@ -481,13 +516,14 @@ void timer(int value)
         rainCollision();
     }
     
-    glutPostRedisplay();
-    glutTimerFunc(50, timer, 0);
+    glutPostRedisplay(); // Display callback (constant refreshing)
+    glutTimerFunc(50, timer, 0); // Recursion
     
     
 }
 
 
+// Main function
 int main(int argc, char * argv[]) {
     
     glutInit(&argc, argv);
@@ -499,16 +535,16 @@ int main(int argc, char * argv[]) {
     
     glutCreateWindow("3D Particle System");	//creates the window
     
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE); // Enables backface culling
+    glEnable(GL_DEPTH_TEST); // Enables depth test for 3-D objects
     
     glutDisplayFunc(display);	//registers "display" as the display callback function
-    glutKeyboardFunc(keyboard);
-    glutSpecialFunc(special);
+    glutKeyboardFunc(keyboard); // registers "keyboard" as the keyboard callback function
+    glutSpecialFunc(special); // registers "special" as the special keyboard callback function
     glutTimerFunc(0.01, timer, 0);
     
     init();
-    glutMainLoop();
+    glutMainLoop(); // Event loop starts
     
     return (0);
 }

@@ -9,7 +9,7 @@
 #ifndef ___DParticleSystem__particle__
 #define ___DParticleSystem__particle__
 
-#include <stdio.h>
+
 
 
 class particle {
