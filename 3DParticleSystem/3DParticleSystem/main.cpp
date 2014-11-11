@@ -42,7 +42,7 @@ bool wind;
 float windspeed = 1.6;
 float direction = 0;
 bool pause;
-bool snow = false;
+bool rain = false;
 
 
 
@@ -112,8 +112,8 @@ void createRainParticle(){
     float g = 0;
     float b = 1;
     speed = 1.35;
-    float px = 1;
-    float pz = 1;
+    float px = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(5 - (-5))));
+    float pz = -5 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(5 - (-5))));
     float dx = 0;
     float dy = -0.35;
     float dz = 0;
@@ -130,7 +130,7 @@ void createRainParticle(){
 // Function (collision on base) if we do our rain graphic
 void rainCollision(){
     for (int x = 0; x < pvector.size(); x++) {
-       if (pvector[x]->getpy() < 0.5){
+       if (pvector[x]->getpy() < 1.1){
             pvector[x]->setdy(0);
         }
     }
@@ -140,7 +140,7 @@ void rainCollision(){
 void removeRainParticle(){
     for (int x =0; x < pvector.size(); x++) {
         // Removes particle if its age is old
-        if (pvector[x]->getage() == 100){
+        if (pvector[x]->getage() == 20){
             pvector.erase(pvector.begin()+x);
         }
     }
@@ -152,6 +152,8 @@ void updateRainParticle(){
         pvector[x]->setage(pvector[x]->getage()+1);
         pvector[x]->setpy(pvector[x]->getpy() + pvector[x]->getdy() );
     }
+    
+     removeRainParticle();
     
 }
 
@@ -349,11 +351,11 @@ void display(void){
     gluLookAt(camPos[0], camPos[1], camPos[2], 0,0,0, 0,1,0);
    
     drawBox(origin, 10, 1, 10);
-    drawOrigin();
     
-    if (snow == false){
+    if (rain == false){
+        drawOrigin();
         renderParticle();
-    } else if (snow == true){
+    } else if (rain == true){
         renderRainParticle();
     }
 
@@ -370,7 +372,6 @@ void display(void){
 void keyboard(unsigned char key, int x, int y){
     
     switch(key){
-            
         case 'q':
         case 'Q':
             exit(0);
@@ -390,6 +391,7 @@ void keyboard(unsigned char key, int x, int y){
                 friction=true;
             }
             break;
+        
         case 'w':
         case 'W':
             if(wind == true){
@@ -399,26 +401,28 @@ void keyboard(unsigned char key, int x, int y){
                 wind=true;
             }
             break;
-        case 'p':
-        case 'P':
+        
+        case ' ':
             if (pause == true){
                 pause = false;
             } else {
                 pause = true;
             }
             break;
+        
         case 'c':
         case 'C':
-                direction++;
+            direction++;
             break;
             
         case 's':
         case 'S':
-            if (snow == true){
-                snow = false;
+            if (rain == true){
+                rain = false;
                 pvector.clear();
-            } else if (snow == false){
-                snow = true;
+            } else if (rain == false){
+                rain = true;
+                pvector.clear();
             }
             break;
             
@@ -430,25 +434,21 @@ void keyboard(unsigned char key, int x, int y){
 void special(int key, int x, int y){
     
     switch(key){
-            
         case GLUT_KEY_LEFT:
             camPos[0]-=0.5;
             break;
             
         case GLUT_KEY_RIGHT:
             camPos[0]+=0.5;
-        
             break;
             
         case GLUT_KEY_UP:
-                camPos[2] -= 0.5;
-                break;
+            camPos[2] -= 0.5;
+            break;
                 
-            case GLUT_KEY_DOWN:
-                camPos[2] += 0.5;
-                break;
-
-        
+        case GLUT_KEY_DOWN:
+            camPos[2] += 0.5;
+            break;
     }
 }
 
@@ -468,13 +468,13 @@ void init(void)
 
 void timer(int value)
 {
-    if (snow == false){
+    if (rain == false){
         if (pause == false){
             createParticle();
         }
         collision();
     }
-    else if (snow == true){
+    else if (rain == true){
         if (pause == false){
             createRainParticle();
         }
